@@ -41,9 +41,9 @@ npm run build
 
 ## 驗證範圍與交接
 
-此工作區已執行核心與 DOM 自動測試、型別檢查及正式建置。每個新增 UI 行為切片先執行失敗測試，再完成實作。jsdom 不提供真實排版與 OS 輸入法；**真實瀏覽器操作、長題可讀性／縮放及真實中文、日文 OS IME 均尚未驗證**，由主機依 [人工驗收清單](docs/acceptance.md) 接續。合成 composition／KeyboardEvent 測試不等於真實 OS IME 通過。
+主機已獨立執行 26 項核心與 DOM 測試、型別檢查及正式建置，並在真實 Chrome 驗證來源、輸入、分頁凍結、長題顯示、結算與重玩。詳細結果與環境限制見 [驗證紀錄](docs/verification.md)。每個新增 UI 行為切片先執行失敗測試，再完成實作。**真實中文／日文 OS IME、200% 縮放及部分系統相容性檢查尚未驗證**，已另開 [BOL-71](https://linear.app/bolas-dev/issue/BOL-71) 接續；合成 composition／KeyboardEvent 測試不等於真實 OS IME 通過。
 
-`docs/player-guide.md` 與 `docs/acceptance.md` 保持原樣。本工作區不處理提交、推送、部署或 Linear 狀態。核心不依賴 DOM、計時器或系統時鐘；以下為其公開契約。
+`docs/player-guide.md` 與 `docs/acceptance.md` 保持原樣，後者是完整人工驗收清單，不是自動通過報告。交付分支為 `symphony/rebuild-mvp`，不覆蓋原本的 `main`。核心不依賴 DOM、計時器或系統時鐘；以下為其公開契約。
 
 ## 公開介面
 
