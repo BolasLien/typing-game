@@ -1,18 +1,49 @@
-# 多語言輸入練習遊戲：純 TypeScript 核心
+# 字落｜多語言輸入練習遊戲
 
-BOL-68 從零實作的遊戲規則與行為測試。核心不依賴 DOM、計時器或系統時鐘；UI 透過輸入與經過時間推進遊戲。
+以 Vite + TypeScript 製作的繁體中文桌面打字遊戲。BOL-70 介面使用 BOL-68 的公開遊戲 API；所有生成、下落、消除、計分與結束判定都交由核心。無後端、帳號、分析或持久儲存，題目與答案只留在目前頁面。
 
 ## 安裝與驗證
 
-需要 Node.js 22 以上。
+需要 Node.js 22.12 以上（Vite 7 的要求）。
 
 ```sh
-npm ci
-npm run typecheck
-npm test
+npm install
+npm run dev
 ```
 
-`npm run typecheck` 檢查核心與測試，TypeScript 的 `lib` 不包含 DOM。`npm test` 使用 Node test runner 與 tsx；所有遊戲情境都透過公開介面建立，不手工拼造 state 或呼叫內部函式。
+開啟終端機顯示的本機網址（預設 `http://127.0.0.1:5173`）。正式靜態檔案及本機預覽：
+
+```sh
+npm run build
+npm run preview
+```
+
+產物在 `dist/`，預覽預設使用 `http://127.0.0.1:4173`。兩個伺服器皆只監聽本機；停止時按 Ctrl+C。已有 lockfile 的乾淨安裝也可使用 `npm ci`。
+
+```sh
+npm run typecheck
+npm test
+npm run build
+```
+
+`npm run typecheck` 檢查核心、DOM 介面與測試。`npm test` 使用 Node test runner、tsx 與 jsdom：保留原有 21 項核心測試，新增 5 項 DOM 操作測試，涵蓋來源邊界、倒數與明確提交、IME 事件順序、失焦／hidden 暫停、結算及連續重玩。UI 測試只控制外部時鐘與瀏覽器焦點／可見性，透過表單、按鍵事件和畫面文字驗證；不模擬內部模組或直接修改遊戲 state。
+
+## 操作
+
+1. 在「題目來源」一行輸入一題，也可直接使用範例。顯示有效題數；空來源、超過 500 題或單題超過 40 個 Unicode 碼點時顯示錯誤，修正後才能開始。保留重複行與內部空格。
+2. 按「開始練習」，等待三秒倒數；焦點會移至「作答」。輸入場上任一完整題目，再按 Enter。答案採 NFC 完整比對、區分大小寫，提交不 trim。命中消除一塊、加 100 分並清空輸入；未匹配會保留文字供修改，不扣分。
+3. 中文／日文 IME 先確認選字，再按下一次 Enter 提交。組字期间、`isComposing`、`keyCode 229` 及 `compositionend` 先於確認 Enter 的事件順序都有防護；長按 Enter 不連續提交。確認按鍵放開後才解除同一次組字確認的保護。
+4. 棋盤為四欄八格，每 20 秒加速。題目完整換行、保留空格；格高依題庫的實際排版調整。窄視窗或放大時可捲動棋盤，作答區停靠在視窗底部。Tab／Shift+Tab 可切換控制項，焦點可見；尊重 reduced-motion，沒有額外裝飾動畫。
+5. 視窗失焦或分頁隱藏時，倒數與模擬時鐘凍結。返回後接續，不補算離開的時間。
+6. 任一欄落定堆滿八格後停止遊戲，顯示分數、消除數、未匹配數與存活時間。「再玩一次」沿用題庫並重設；「修改來源」返回原始文字。重新整理不保存題庫或成績。
+
+完整規則見 [玩家操作說明](docs/player-guide.md)。
+
+## 驗證範圍與交接
+
+此工作區已執行核心與 DOM 自動測試、型別檢查及正式建置。每個新增 UI 行為切片先執行失敗測試，再完成實作。jsdom 不提供真實排版與 OS 輸入法；**真實瀏覽器操作、長題可讀性／縮放及真實中文、日文 OS IME 均尚未驗證**，由主機依 [人工驗收清單](docs/acceptance.md) 接續。合成 composition／KeyboardEvent 測試不等於真實 OS IME 通過。
+
+`docs/player-guide.md` 與 `docs/acceptance.md` 保持原樣。本工作區不處理提交、推送、部署或 Linear 狀態。核心不依賴 DOM、計時器或系統時鐘；以下為其公開契約。
 
 ## 公開介面
 
